@@ -11,9 +11,14 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
-    "nuxt": "^2.0.0",
+    "@nuxtjs/axios": "^5.9.2",
+    "axios": "^0.19.1",
     "cross-env": "^5.2.0",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "node-sass": "^4.13.0",
+    "nuxt": "^2.0.0",
+    "remove": "^0.1.5",
+    "sass-loader": "^8.0.1"
   },
   "devDependencies": {
     "nodemon": "^1.18.9"
