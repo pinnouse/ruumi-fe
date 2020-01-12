@@ -1,8 +1,13 @@
-a {
+a, button {
+    cursor: pointer;
     display: inline-block;
+    font-family: 'Montserrat', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 18px;
     padding: 14px;
     border-radius: 2px;
     background-color: #df465f;
+    outline: none;
+    border: none;
     color: #ffffff;
     text-decoration: none;
     transition: .12s;
@@ -10,4 +15,52 @@ a {
     &:hover {
         background-color: #ad3952;
     }
+}
+
+form {
+    display: block;
+    width: 100%;
+    text-align: center;
+
+    & > * {
+        display: block;
+        margin: 0 auto 8px;
+        padding: 8px;
+        font-size: 18px;
+    }
+
+    & > input[type=text] {
+        outline: none;
+        border: none;
+        width: 60%;
+        border-radius: 2px;
+    }
+
+    & > button[type=submit] {
+        cursor: pointer;
+        border: none;
+        border-radius: 2px;
+        background-color: #df465f;
+        color: #ffffff;
+        transition: .12s;
+
+        &:hover {
+            background-color: #ad3952;
+        }
+    }
+}
+
+.page-enter-active, .page-leave-active {
+    transition: all .30s ease-out;
+}
+.page-enter {
+    opacity: 0;
+    transform-origin: 50% 50%;
+    transform: translateY(20px);
+}
+
+.page-leave-active {
+    opacity: 0;
+    transform-origin: 50% 50%;
+    transform: translateY(-20px);
 }

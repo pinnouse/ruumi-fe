@@ -29,5 +29,15 @@ export default {
                 commit('setAnime', { anime, episodes: response.data.episodes })
             }
         }
+    },
+    async getRoom({ commit }, roomId) {
+        let response = await api.get('http://localhost:3000/getRoom', {
+            params: {
+                room: roomId
+            }
+        })
+        if (response.status === 200) {
+            commit('setRoom', {room: response.data})
+        }
     }
 }

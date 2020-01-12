@@ -6,5 +6,8 @@ export default {
     setAnime(state, { anime, episodes }) {
         anime.episodes = episodes
         state.anime[anime.catURL.substr(10)] = anime
+    },
+    setRoom(state, {room}) {
+        state.room = room
     }
 }

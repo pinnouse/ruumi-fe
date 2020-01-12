@@ -6,7 +6,7 @@
 
 <style lang="scss">
 html {
-  font-family: Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Montserrat', Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-size: 18px;
   word-spacing: 1px;
   -ms-text-size-adjust: 100%;

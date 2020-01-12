@@ -1,7 +1,7 @@
 export default () => ({
     searchTerm: "",
     search: [],
-    rooms: {},
+    room: {},
     anime: {},
     user: {
         id: "",

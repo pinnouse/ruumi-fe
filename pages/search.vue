@@ -1,8 +1,9 @@
 <template>
     <div>
+        <h1>SEARCH</h1>
         <router-link to="/">Home</router-link>
         <form class="search" @submit.prevent="newSearch">
-            <input type="text" placeholder="search" v-model="keyword">
+            <input type="text" placeholder="Search" v-model="keyword">
             <button type="submit">Search</button>
         </form>
         <div class="search-results">
@@ -12,7 +13,10 @@
                 </span>
                 <template v-else>
                     <div v-for="(a, i) in search"
-                        :key="i">
+                        :key="i"
+                        :style="{
+                            'animation-delay': `${i*0.026}s`
+                            }">
                         <router-link :to="`/anime/${a.catURL.replace(/^\/category\//i, '')}`">{{a.name}}</router-link>
                     </div>
                 </template>
@@ -41,14 +45,16 @@ export default {
     },
     data() {
         return {
-            keyword: this.$route.query.q || "",
+            keyword: this.$route.query.q || this.$store.state.searchTerm || "",
             loading: false,
+            page: 1
         }
     },
     methods: {
         async newSearch() {
             this.loading = true
             await this.$store.dispatch("search", { searchTerm: this.keyword, page: 1 })
+            this.page = 1
             this.loading = false
         }
     }
@@ -56,38 +62,6 @@ export default {
 </script>
 
 <style lang="scss">
-form.search {
-    display: block;
-    text-align: center;
-
-    & > * {
-        display: block;
-        margin: 0 auto 8px;
-        padding: 8px;
-        font-size: 18px;
-    }
-
-    & > input[type=text] {
-        outline: none;
-        border: none;
-        width: 60%;
-        border-radius: 2px;
-    }
-
-    & > button[type=submit] {
-        cursor: pointer;
-        border: none;
-        border-radius: 2px;
-        background-color: #df465f;
-        color: #ffffff;
-        transition: .12s;
-
-        &:hover {
-            background-color: #ad3952;
-        }
-    }
-}
-
 .search-results {
     display: flex;
     flex-direction: row;
@@ -96,6 +70,8 @@ form.search {
     & > div {
         display: inline-block;
         margin: 8px;
+        opacity: 0;
+        animation: fade-in .3s ease-out forwards;
 
         & > a {
             display: block;
@@ -115,5 +91,16 @@ form.search {
 
 *:focus {
     outline: none;
+}
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+        transform: translateY(60px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>

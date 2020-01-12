@@ -1,8 +1,9 @@
 <template>
     <div>
+        <h1>ANIME</h1>
+        <h2>{{anime.name}}</h2>
         <router-link to="/search">Back</router-link>
-        <h1>{{anime.name}}</h1>
-        <span>Currently has {{anime.episodes}} episodes.</span>
+        <h4>Currently has {{anime.episodes}} episodes.</h4>
         <div class="episode-list">
             <div v-for="e in anime.episodes"
                 :key="e">
