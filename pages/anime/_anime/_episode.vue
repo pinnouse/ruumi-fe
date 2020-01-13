@@ -11,7 +11,8 @@ import axios from 'axios';
 
 export default {
     validate({params, store}) {
-        return /^\d+/.test(params.episode) && store.state.anime && store.state.anime[params.anime]
+        if (!/^\d+/.test(params.episode)) return false;
+        return store.state.anime && store.state.anime[params.anime]
     },
     computed: {
         anime() {
@@ -29,6 +30,10 @@ export default {
                 })
                 if (r.status === 200) {
                     let ep = r.data;
+                    if (ep.srcURL.startsWith('https://hls')) {
+                        alert("This episode link isn't supported.")
+                        return
+                    }
                     let r2 = await axios.post('http://localhost:3000/createRoom', {
                         data: {
                             user: this.$store.state.user,

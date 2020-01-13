@@ -15,7 +15,7 @@
                     <div v-for="(a, i) in search"
                         :key="i"
                         :style="{
-                            'animation-delay': `${i*0.026}s`
+                            'animation-delay': `${Math.sqrt(i) * 0.066}s`
                             }">
                         <router-link :to="`/anime/${a.catURL.replace(/^\/category\//i, '')}`">{{a.name}}</router-link>
                     </div>

@@ -9,7 +9,7 @@ export default {
         if (state.searchTerm != searchTerm) {
             let response = await api.get('gogo', {
                 params: {
-                    keyword: searchTerm,
+                    q: searchTerm,
                     page: page
                 }
             })
@@ -31,13 +31,17 @@ export default {
         }
     },
     async getRoom({ commit }, roomId) {
-        let response = await api.get('http://localhost:3000/getRoom', {
-            params: {
-                room: roomId
+        try {
+            let response = await api.get('http://localhost:3000/getRoom', {
+                params: {
+                    room: roomId
+                }
+            })
+            if (response.status === 200) {
+                commit('setRoom', {room: response.data})
             }
-        })
-        if (response.status === 200) {
-            commit('setRoom', {room: response.data})
+        } catch(e) {
+            console.error("Room does not exist.")
         }
     }
 }

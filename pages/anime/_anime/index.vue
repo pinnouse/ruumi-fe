@@ -5,8 +5,11 @@
         <router-link to="/search">Back</router-link>
         <h4>Currently has {{anime.episodes}} episodes.</h4>
         <div class="episode-list">
-            <div v-for="e in anime.episodes"
-                :key="e">
+            <div v-for="(e, i) in anime.episodes"
+                :key="e"
+                :style="{
+                    'animation-delay': `${Math.sqrt(i) * 0.066}s`
+                    }">
                 <router-link :to="`./${anime.catURL.substr(10)}/${e}`">{{e}}</router-link>
             </div>
         </div>
@@ -45,6 +48,8 @@ export default {
     & > div {
         display: inline-block;
         margin: 8px;
+        opacity: 0;
+        animation: fade-in .3s ease-out forwards;
 
         & > a {
             display: block;
@@ -59,6 +64,17 @@ export default {
                 background-color: #ad3952;
             }
         }
+    }
+}
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+        transform: translateY(60px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 </style>

@@ -1,12 +1,13 @@
 <template>
     <div>
         <button type="submit" @click="leaveRoom">Leave</button>
-        <div v-if="!room">
-            No room found
+        <div v-if="!room || room.id !== $route.params.room">
+            <h2>No room found</h2>
         </div>
         <template v-else>
             <div class="video-container">
                 <h1>{{room.title}}</h1>
+                <h3>Episode {{room.episode}}</h3>
                 <div class="player">
                     <video ref="video" @click="playPause" @timeupdate="setTime" @dblclick="fullscreen" controls>
                         <source :src="room.source" type="video/mp4">
@@ -19,13 +20,16 @@
                         </div>
                     </div>
                 </div>
-                <span>{{room.owner.name}}'s room</span>
+                <h4>{{room.owner.name}}'s room</h4>
+                <span>Room link: <u class="copy-link" @click="copyLink">https://ruumi.net/room/{{room.id}}</u></span>
             </div>
         </template>
     </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     async asyncData({store, params}) {
         return await store.dispatch('getRoom', params.room)
@@ -38,55 +42,77 @@ export default {
     methods: {
         leaveRoom() {
             window.location.href = '../';
+            if (this.room && this.room.owner && this.room.owner.id == this.$store.state.user.id) {
+                axios.post('http://localhost:3000/delRoom', {
+                    data: {
+                        roomId: this.room.id,
+                        userId: this.$store.state.user.id
+                    }
+                })
+            }
+        },
+        copyLink() {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(`https://ruumi.net/room/${this.room.id}`)
+            }
         },
         playPause() {
-            if (this.$refs.video.paused) {
-                this.$refs.video.play()
-            } else {
-                this.$refs.video.pause()
+            if (this.$refs.video) {
+                if (this.$refs.video.paused) {
+                    this.$refs.video.play()
+                } else {
+                    this.$refs.video.pause()
+                }
             }
         },
         setTime() {
             let media = this.$refs.video;
-            let minutes = Math.floor(media.currentTime / 60);
-            let seconds = Math.floor(media.currentTime - minutes * 60);
-            let minuteValue;
-            let secondValue;
-
-            if (minutes < 10) {
-                minuteValue = '0' + minutes;
-            } else {
-                minuteValue = minutes;
+            if (media) {
+                let minutes = Math.floor(media.currentTime / 60);
+                let seconds = Math.floor(media.currentTime - minutes * 60);
+                let minuteValue;
+                let secondValue;
+    
+                if (minutes < 10) {
+                    minuteValue = '0' + minutes;
+                } else {
+                    minuteValue = minutes;
+                }
+    
+                if (seconds < 10) {
+                    secondValue = '0' + seconds;
+                } else {
+                    secondValue = seconds;
+                }
+    
+                let mediaTime = minuteValue + ':' + secondValue;
+                this.$refs.timer.textContent = mediaTime;
+    
+                let barLength = this.$refs.timerWrapper.clientWidth * (media.currentTime/media.duration);
+                this.$refs.timerBar.style.width = barLength + 'px';
             }
-
-            if (seconds < 10) {
-                secondValue = '0' + seconds;
-            } else {
-                secondValue = seconds;
-            }
-
-            let mediaTime = minuteValue + ':' + secondValue;
-            this.$refs.timer.textContent = mediaTime;
-
-            let barLength = this.$refs.timerWrapper.clientWidth * (media.currentTime/media.duration);
-            this.$refs.timerBar.style.width = barLength + 'px';
         },
         fullscreen() {
             var elem = this.$refs.video;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if (elem.mozRequestFullScreen) {
-                elem.mozRequestFullScreen();
-            } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) { 
-                elem.msRequestFullscreen();
+            if (elem) {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) { 
+                    elem.msRequestFullscreen();
+                }
             }
         }
     },
     mounted() {
-        this.$refs.video.removeAttribute('controls');
-        this.$refs.controls.style.visibility = 'visible';
+        if (this.room && this.room.id == this.$route.params.room) {
+            this.$refs.video.removeAttribute('controls');
+            this.$refs.controls.style.visibility = 'visible';
+            console.log(this.$refs.video)
+        }
     }
 }
 </script>
@@ -145,5 +171,9 @@ export default {
 
 .player:hover .controls, .player:focus .controls {
     opacity: 1;
+}
+
+.copy-link {
+    cursor: pointer;
 }
 </style>

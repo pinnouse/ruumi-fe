@@ -9,5 +9,8 @@ export default {
     },
     setRoom(state, {room}) {
         state.room = room
+    },
+    setUser(state, user) {
+        state.user = user
     }
 }
