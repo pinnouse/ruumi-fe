@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const consola = require('consola')
 const { Nuxt, Builder } = require('nuxt')
@@ -12,6 +13,10 @@ const Rooms = require('./rooms')
 // Import and Set Nuxt.js options
 const config = require('../nuxt.config.js')
 config.dev = process.env.NODE_ENV !== 'production'
+
+const { login, refresh, getUser } = require('./user_auth')
+
+const api = require('./api')
 
 const PATHS = ['user']
 
@@ -49,31 +54,21 @@ async function start () {
 
   app.disable('x-powered-by')
 
-  app.use((req, res, next) => {
+  app.use(async (req, res, next) => {
     if (/\w\/$/.test(req.path)) {
       res.redirect(301, req.path.substring(0, req.path.length-1))
       return
     }
-    if (!req.session.user) {
-      var S4 = function() {
-        return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-      };
-      req.session.user = {
-        id: S4()+S4()+'-'+S4()+'-'+S4()+'-'+S4()+S4(),
-        name: 'a random name'
-      }
+
+    if (req.session.access && !req.session.user) {
+      let user = await getUser(req.session.access.access)
+      req.session.user = user
     }
+
     next()
   })
 
-  app.post('/changeName', (req, res) => {
-    if (req.params.name) {
-      req.session.user.name = req.params.name
-      res.send('success')
-      return
-    }
-    res.status(405).send('Bad request')
-  })
+  app.get('/api/:item', api)
 
   app.get('/localApi/:item', (req, res) => {
     if (PATHS.includes(req.params.item)) {
@@ -86,7 +81,7 @@ async function start () {
   var rooms = new Rooms();
   app.post('/createRoom', (req, res) => {
     let data = req.body.data;
-    let id = rooms.createRoom(data.user, data.episode.srcURL, data.anime.name, data.episode.epNum)
+    let id = rooms.createRoom(data.user, data.anime.title, data.episode)
     res.send({roomId: id})
   })
 
@@ -112,6 +107,60 @@ async function start () {
       return
     }
     res.status(403).send("You cannot delete this room bruv.")
+  })
+
+  app.get('/auth', async (req, res) => {
+    if (!req.query.code) {
+      if (req.session.access && req.session.access.expires <= Date.now()) {
+        let response = await refresh(req.session.access.refresh)
+        if (response) {
+          req.session.access = {
+            access:  response.access_token,
+            refresh: response.refresh_token,
+            expires: response.expires_in + Date.now()
+          }
+          res.redirect('.')
+          return
+        }
+      }
+      res.status(403).send("No sir.")
+      return
+    } else {
+      let response = await login(req.query.code)
+      if (response) {
+        req.session.access = {
+          access:  response.access_token,
+          refresh: response.refresh_token,
+          expires: response.expires_in + Date.now()
+        }
+        res.redirect('.')
+      }
+    }
+  })
+
+  app.get('/login', async (req, res) => {
+    if (!req.session.access) {
+      let redir = process.env.NODE_ENV !== 'production' ? 'http%3A%2F%2Flocalhost%3A3000%2Fauth' : 'https%3A%2F%2Fruumi.net%2Fauth'
+      res.redirect(
+        `https://discordapp.com/api/oauth2/authorize?client_id=669322924657737748&redirect_uri=${
+          redir
+        }&response_type=code&scope=identify%20email`)
+    } else if (req.session.access.expires <= Date.now()) {
+      let response = await refresh(req.session.access.refresh)
+      if (response) {
+        req.session.access = {
+          access:  response.access_token,
+          refresh: response.refresh_token,
+          expires: response.expires_in + Date.now()
+        }
+        res.redirect('.')
+      }
+    }
+  })
+
+  app.get('/logout', (req, res) => {
+    req.session.destroy()
+    res.redirect('.')
   })
 
   // Give nuxt middleware to express

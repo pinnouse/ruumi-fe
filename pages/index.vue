@@ -3,9 +3,13 @@
         <div id="home">
             <div class="hero">
                 <h1>Ruumi</h1>
+                <span v-if="hasUser" style="font-size: 10pt;">Hey there, {{user.username}}#{{user.discriminator}}!</span>
                 <span>{{motd}}</span>
             </div>
-            <router-link to="search">Search</router-link>
+            <div>
+                <router-link to="search">Search</router-link>
+                <a v-if="!hasUser" href="/login">Login</a>
+            </div>
         </div>
     </div>
 </template>
@@ -21,6 +25,17 @@ const MESSAGES = [
     "Made with 💖",
 ]
 export default {
+    computed: {
+        hasUser() {
+            return !(Object.entries(this.$store.state.user).length === 0 && this.$store.state.user.constructor === Object)
+        },
+        user() {
+            return this.$store.state.user
+        },
+        motd() {
+            return MESSAGES[Math.floor(Math.random()*MESSAGES.length)]
+        }
+    },
     methods: {
         joinRoom() {
           
@@ -29,7 +44,6 @@ export default {
     data() {
         return {
             roomId: "",
-            motd: MESSAGES[Math.floor(Math.random()*MESSAGES.length)]
         }
     }
 }
@@ -63,7 +77,9 @@ export default {
         }
 
         & > span {
+            display: block;
             font-size: 16px;
+            margin-bottom: 4px;
         }
     }
 }

@@ -1,16 +1,13 @@
 <template>
     <div>
         <button type="submit" @click="leaveRoom">Leave</button>
-        <div v-if="!room || room.id !== $route.params.room">
-            <h2>No room found</h2>
-        </div>
-        <template v-else>
+        <div class="container">
             <div class="video-container">
-                <h1>{{room.title}}</h1>
-                <h3>Episode {{room.episode}}</h3>
+                <h1>{{room.anime.title}}</h1>
+                <h3>Episode {{room.episode.epNum}}</h3>
                 <div class="player">
                     <video ref="video" @click="playPause" @timeupdate="setTime" @dblclick="fullscreen" controls>
-                        <source :src="room.source" type="video/mp4">
+                        <source :src="room.episode.source" type="video/mp4">
                     </video>
                     <div class="controls" ref="controls">
                         <button class="play" data-icon="P" aria-label="play pause toggle" @click="playPause"></button>
@@ -20,10 +17,20 @@
                         </div>
                     </div>
                 </div>
-                <h4>{{room.owner.name}}'s room</h4>
+                <h5>{{room.owner.username}}#{{room.owner.discriminator}}'s room</h5>
                 <span>Room link: <u class="copy-link" @click="copyLink">https://ruumi.net/room/{{room.id}}</u></span>
             </div>
-        </template>
+            <div class="chat-container">
+                <div class="chat-users">
+                    <span class="user" v-for="u in users"
+                        :key="u">
+                        {{u.username}}#{{u.discriminator}}
+                    </span>
+                </div>
+                <div class="chat-items"></div>
+                <input type="text" placeholder="Start chatting...">
+            </div>
+        </div>
     </div>
 </template>
 
@@ -31,12 +38,19 @@
 import axios from 'axios';
 
 export default {
-    async asyncData({store, params}) {
-        return await store.dispatch('getRoom', params.room)
+    async asyncData({store, params, error}) {
+        try {
+            return await store.dispatch('getRoom', params.room)
+        } catch(e) {
+            error({ statusCode: 404, message: 'Room not found' })
+        }
     },
     computed: {
         room() {
             return this.$store.state.room
+        },
+        users() {
+            return this.$store.state.room.users
         }
     },
     methods: {
@@ -118,15 +132,71 @@ export default {
 </script>
 
 <style lang="scss">
-.video-container {
-    width: 60%;
-}
-.player {
-    position: relative;
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
 
-    & > video {
-        display: block;
-        width: 100%;
+    & > .video-container {
+        width: 60%;
+
+        & > .player {
+            position: relative;
+        
+            & > video {
+                position: relative;
+                display: block;
+                width: 100%;
+                background: #000000;
+                box-shadow: 5px 6px 18px 2px rgba(6, 2, 4, 0.33);
+            }
+        }
+    }
+
+    & > .chat-container {
+        display: flex;
+        flex-direction: column;
+        width: 30%;
+        min-height: 700px;
+        box-shadow: 5px 6px 18px 2px rgba(6, 2, 4, 0.33);
+
+        & > .chat-users {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            max-height: 60px;
+            background: #ad3952;
+            box-sizing: border-box;
+            padding: 8px 4px;
+            overflow-y: auto;
+
+            & > .user {
+                margin: 4px 6px;
+                padding: 4px 10px;
+                font-size: 10px;
+                border-radius: 9px;
+                background: #df465f;
+            }
+        }
+
+        & > .chat-items {
+            flex: 1;
+            background: #000000
+        }
+
+        & > input {
+            outline: none;
+            border: none;
+            border-top: 3px solid #ad3952;
+            background: #000000;
+            color: #ffffff;
+            width: 100%;
+            font-size: 14px;
+            padding: 20px 12px;
+            box-sizing: border-box;
+        }
     }
 }
 
@@ -135,7 +205,7 @@ export default {
     opacity: 0;
     width: 100%;
     position: absolute;
-    bottom: 6px;
+    bottom: 0;
     left: 0;
     background-color: black;
     transition: .6s all;

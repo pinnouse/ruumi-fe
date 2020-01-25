@@ -3,7 +3,7 @@ class Rooms {
         this._rooms = new Map();
     }
 
-    createRoom(user, source, title, episode) {
+    createRoom(user, anime, episode) {
         //https://stackoverflow.com/questions/6860853/generate-random-string-for-div-id
         var S4 = function() {
             return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
@@ -14,8 +14,7 @@ class Rooms {
         }
         this._rooms.set(r, {
             id: r,
-            title: title,
-            source: source,
+            anime: anime,
             episode: episode || 0,
             owner: user,
             seek: 0,

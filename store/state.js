@@ -3,8 +3,5 @@ export default () => ({
     search: [],
     room: {},
     anime: {},
-    user: {
-        id: "",
-        name: ""
-    }
+    user: {}
 })

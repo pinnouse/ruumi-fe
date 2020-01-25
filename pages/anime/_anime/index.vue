@@ -1,16 +1,19 @@
 <template>
     <div>
         <h1>ANIME</h1>
-        <h2>{{anime.name}}</h2>
+        <h2>{{anime.title}}</h2>
+        <h5 v-if="alts">
+            Also known as: <i>{{alts}}</i>
+        </h5>
         <router-link to="/search">Back</router-link>
-        <h4>Currently has {{anime.episodes}} episodes.</h4>
+        <h4>Currently has {{anime.episodes.length}} episode(s).</h4>
         <div class="episode-list">
             <div v-for="(e, i) in anime.episodes"
                 :key="e"
                 :style="{
                     'animation-delay': `${Math.sqrt(i) * 0.066}s`
                     }">
-                <router-link :to="`./${anime.catURL.substr(10)}/${e}`">{{e}}</router-link>
+                <router-link :to="`./${anime.id}/${e.epNum}`">Episode {{e.epNum}}</router-link>
             </div>
         </div>
     </div>
@@ -18,24 +21,25 @@
 
 <script>
 export default {
-    async asyncData({ store, params }) {
-        return await store.dispatch(
-            'fetchAnime',
-            store.state.search.find(s => s.catURL.substr(10) == params.anime)
-            )
+    async asyncData({ store, params, error }) {
+        try {
+            return await store.dispatch('fetchAnime', params.anime)
+        } catch(e) {
+            error({ statusCode: 404, message: "Anime not found." })
+        }
     },
     computed: {
         anime() {
             let anim = this.$route.params.anime
             if (!this.$store.state.anime && !this.$store.state.anime[anim])
-                return this.$store.state.search.find(s => s.catURL.substr(10) == anim)
+                return this.$store.state.search.find(s => s.id == anim)
             return this.$store.state.anime[anim]
+        },
+        alts() {
+            return this.anime.altTitles.length > 0
+                ? this.anime.altTitles.join(', ') : false
         }
     },
-    validate({ params, store }) {
-        return (store.state.anime && store.state.anime[params.anime] != undefined) ||
-            store.state.search.findIndex(s => s.catURL.substr(10) == params.anime) >= 0
-    }
 }
 </script>
 

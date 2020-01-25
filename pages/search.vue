@@ -17,7 +17,7 @@
                         :style="{
                             'animation-delay': `${Math.sqrt(i) * 0.066}s`
                             }">
-                        <router-link :to="`/anime/${a.catURL.replace(/^\/category\//i, '')}`">{{a.name}}</router-link>
+                        <router-link :to="`/anime/${a.id}`">{{a.title}}</router-link>
                     </div>
                 </template>
             </template>
@@ -40,7 +40,7 @@ export default {
             return this.$store.state.search
         },
         noResults() {
-            return this.search.length == 0 || this.search[0].catURL.startsWith('https://')
+            return this.search.length == 0
         }
     },
     data() {
@@ -53,7 +53,7 @@ export default {
     methods: {
         async newSearch() {
             this.loading = true
-            await this.$store.dispatch("search", { searchTerm: this.keyword, page: 1 })
+            await this.$store.dispatch("search", this.keyword)
             this.page = 1
             this.loading = false
         }

@@ -1,16 +1,15 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://localhost:9000/"
+    baseURL: "http://localhost:3000/",
 })
 
 export default {
-    async search({ commit, state }, { searchTerm, page }) {
+    async search({ commit, state }, searchTerm) {
         if (state.searchTerm != searchTerm) {
-            let response = await api.get('gogo', {
+            let response = await api.get('api/search', {
                 params: {
-                    q: searchTerm,
-                    page: page
+                    q: searchTerm
                 }
             })
             if (response.status === 200) {
@@ -18,30 +17,26 @@ export default {
             }
         }
     },
-    async fetchAnime({ commit, state }, anime) {
-        if (state.anime[anime] == undefined) {
-            let response = await api.get('gogoCategory', {
+    async fetchAnime({ commit, state }, animeId) {
+        if (!state.anime[animeId]) {
+            let response = await api.get('api/anime', {
                 params: {
-                    category: anime.catURL
+                    id: animeId
                 }
             })
             if (response.status === 200) {
-                commit('setAnime', { anime, episodes: response.data.episodes })
+                commit('setAnime', response.data)
             }
         }
     },
     async getRoom({ commit }, roomId) {
-        try {
-            let response = await api.get('http://localhost:3000/getRoom', {
-                params: {
-                    room: roomId
-                }
-            })
-            if (response.status === 200) {
-                commit('setRoom', {room: response.data})
+        let response = await api.get('getRoom', {
+            params: {
+                room: roomId
             }
-        } catch(e) {
-            console.error("Room does not exist.")
+        })
+        if (response.status === 200) {
+            commit('setRoom', {room: response.data})
         }
     }
 }
