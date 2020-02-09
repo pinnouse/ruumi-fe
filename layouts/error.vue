@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="error">
         <h1>{{error.statusCode}}</h1>
         <nuxt-link to="/">Home Page</nuxt-link>
         <div>
@@ -13,3 +13,15 @@ export default {
     props: ['error']
 }
 </script>
+
+<style lang="scss">
+#__layout > div > .error.container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+}
+</style>

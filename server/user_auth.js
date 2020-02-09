@@ -60,7 +60,6 @@ module.exports = {
                     'Authorization': `Bearer ${access}`
                 }
             })
-            console.log(RESPONSE.data)
             if (RESPONSE.status == 200 && RESPONSE.data) return RESPONSE.data
         } catch(e) {
             if (e.error) return e.error

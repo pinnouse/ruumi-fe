@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://localhost:3000/",
+    baseURL: process.env.NODE_ENV === 'production' ? "http://ruumi.net/" : "http://localhost:3000/",
 })
 
 export default {
@@ -28,6 +28,28 @@ export default {
                 commit('setAnime', response.data)
             }
         }
+    },
+    async fetchEpisode({ commit }, { animeId, epNum }) {
+        let response = await api.get('api/episode', {
+            params: {
+                id: animeId,
+                ep: epNum
+            }
+        })
+        if (response.status === 200) {
+            commit('setEpisode', { animeId, epNum, source: response.data.url })
+            return response.data
+        }
+    },
+    async createRoom({}, data) {
+        return await api.post('createRoom', {
+            data: data
+        })
+    },
+    async delRoom({}, data) {
+        return await api.post('delRoom', {
+            data: data
+        })
     },
     async getRoom({ commit }, roomId) {
         let response = await api.get('getRoom', {

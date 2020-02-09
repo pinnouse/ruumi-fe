@@ -1,14 +1,20 @@
 require('dotenv').config()
 const express = require('express')
+const ws = require('ws')
+const url = require('url')
+const http = require('http')
 const consola = require('consola')
 const { Nuxt, Builder } = require('nuxt')
 const app = express()
 
 const bodyParser = require('body-parser')
 const session = require('express-session')
-const MemoryStore = require('memorystore')(session)
+const MongoStore = require('connect-mongo')(session)
+
+const CronJob = require('cron').CronJob
 
 const Rooms = require('./rooms')
+const wsMap = new Map()
 
 // Import and Set Nuxt.js options
 const config = require('../nuxt.config.js')
@@ -37,19 +43,24 @@ async function start () {
   const COOKIE_AGE = 1000 * 60 * 60 * 24
   let sess = {
     cookie: { maxAge: COOKIE_AGE },
-    store: new MemoryStore({
-      checkPeriod: COOKIE_AGE
+    store: new MongoStore({
+      url: 'mongodb://' +
+        process.env.MONGO_USER && process.env.MONGO_PASS ? `${process.env.MONGO_USER}:${process.env.MONGO_PASS}@` : "" +
+        process.env.MONGO_URL || 'localhost:27017',
+      touchAfter: COOKIE_AGE
     }),
-    secret: 'random_secret_ruumi_should_change',
+    secret: process.env.SESSION_SECRET || 'random_secret_ruumi_should_change',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false
   }
   if (!config.dev) {
     app.set('trust proxy', 1)
     sess.cookie.secure = true
   }
 
-  app.use(session(sess))
+  const sessionParser = session(sess)
+
+  app.use(sessionParser)
   app.use(bodyParser.json())
 
   app.disable('x-powered-by')
@@ -62,7 +73,12 @@ async function start () {
 
     if (req.session.access && !req.session.user) {
       let user = await getUser(req.session.access.access)
-      req.session.user = user
+      if (user.verified) {
+        req.session.user = user
+      } else {
+        res.status(403).send('<!DOCTYPE html><html><body>You must have a verified Discord account to use this service. <a href="/login">Try logging in again</a>.</body></html>')
+        return
+      }
     }
 
     next()
@@ -81,7 +97,7 @@ async function start () {
   var rooms = new Rooms();
   app.post('/createRoom', (req, res) => {
     let data = req.body.data;
-    let id = rooms.createRoom(data.user, data.anime.title, data.episode)
+    let id = rooms.createRoom(data.user, data.anime, data.episode)
     res.send({roomId: id})
   })
 
@@ -167,7 +183,52 @@ async function start () {
   app.use(nuxt.render)
 
   // Listen the server
-  app.listen(port, host)
+  //app.listen(port, host)
+  let server = http.createServer(app)
+  let wss = new ws.Server({ clientTracking: false, noServer: true })
+
+  server.on('upgrade', (req, socket, head) => {
+    console.log('Parsing session from request...')
+    sessionParser(req, {}, () => {
+      if (!req.session.user) {
+        socket.destroy()
+        return
+      }
+      console.log('Session is parsed')
+      wss.handleUpgrade(req, socket, head, ws => {
+        wss.emit('connection', ws, req)
+      })
+    })
+  })
+
+  wss.on('connection', (ws, req) => {
+    let q = url.parse(req.url, true)
+    if (!q.query || !q.query.r) return;
+    wsMap.set(req.session.user.id, {room: rooms.getRoom(q.query.r), ws: ws })
+
+    ws.on('message', msg => {
+      console.log(`got message ${msg} from ${req.session.user.username}`)
+      let room = wsMap.get(req.session.user.id).room
+      console.log(room)
+      if (!room) return;
+      room.users.forEach(u => {
+        wsMap.get(u.id).ws.send(msg)
+      })
+    })
+
+    ws.on('close', () => {
+      wsMap.delete(req.session.user.id)
+    })
+  })
+
+  let job = new CronJob("0 */20 * * * *", () => {
+    let del = rooms.checkRooms()
+    console.log(`Checked ${rooms.size()} and removed ${del}`)
+  })
+  job.start()
+
+  server.listen(port, host)
+  
   consola.ready({
     message: `Server listening on http://${host}:${port}`,
     badge: true

@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div>
         <div id="home">
             <div class="hero">
                 <h1>Ruumi</h1>
@@ -9,6 +9,7 @@
             <div>
                 <router-link to="search">Search</router-link>
                 <a v-if="!hasUser" href="/login">Login</a>
+                <a v-else href="/logout">Logout</a>
             </div>
         </div>
     </div>
@@ -56,6 +57,7 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    align-self: center;
     min-height: 90vh;
     min-width: 50vw;
     flex: 1;

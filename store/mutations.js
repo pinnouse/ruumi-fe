@@ -6,6 +6,11 @@ export default {
     setAnime(state, anime) {
         state.anime[anime.id] = anime
     },
+    setEpisode(state, { animeId, epNum, source }) {
+        if (state.anime[animeId]) {
+            state.anime[animeId].episodes.find(a => a.epNum == epNum).source = source
+        }
+    },
     setRoom(state, {room}) {
         state.room = room
     },

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <nuxt class="container" />
+    <nuxt class="room container" />
   </div>
 </template>
 
@@ -18,18 +18,11 @@ html {
   color: #ffffff;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-}
-
 #__layout {
   margin: 32px 10vw;
 
-  & > div > .container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  & > div > .room.container {
+    display: block
   }
 }
 </style>

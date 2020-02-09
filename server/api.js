@@ -10,12 +10,14 @@ const api = axios.create({
 const PATHS = [
     'search',
     'anime',
+    'episode',
 ]
 
 module.exports = async (req, res) => {
     let path = req.params.item
     if (PATHS.includes(path)) {
         try {
+            //TODO: API Caching
             let response
             if (req.method === 'GET') {
                 response = await api.get(path, {

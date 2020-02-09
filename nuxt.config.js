@@ -5,7 +5,7 @@ module.exports = {
   ** Headers of the page
   */
   head: {
-    htmlAttr: {
+    htmlAttrs: {
       lang: 'en',
     },
     title: 'ruumi',
