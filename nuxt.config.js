@@ -19,7 +19,7 @@ module.exports = {
       { href: "https://fonts.googleapis.com/css?family=Montserrat&display=swap", rel: "stylesheet" }
     ]
   },
-  host: process.enc.HOST || 'localhost',
+  host: process.env.HOST || 'localhost',
   /*
   ** Customize the progress-bar color
   */
