@@ -25,7 +25,7 @@ module.exports = {
             })
             if (TOKEN.status === 200 && TOKEN.data) return TOKEN.data
         } catch(e) {
-            console.log(e)
+            console.error(e)
             if (e.error) return e.error
         }
         return {}
@@ -46,7 +46,7 @@ module.exports = {
             })
             if (TOKEN.status === 200 && TOKEN.data) return TOKEN.data
         } catch(e) {
-            console.log(e)
+            console.error(e)
             if (e.error) return e.error
         }
         return {}
@@ -62,6 +62,7 @@ module.exports = {
             })
             if (RESPONSE.status == 200 && RESPONSE.data) return RESPONSE.data
         } catch(e) {
+            console.error(e)
             if (e.error) return e.error
         }
         return {}
