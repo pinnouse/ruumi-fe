@@ -156,7 +156,7 @@ async function start () {
 
   app.get('/login', async (req, res) => {
     if (!req.session.access) {
-      let redir = process.env.NODE_ENV !== 'production' ? 'http%3A%2F%2Flocalhost%3A3000%2Fauth' : 'https%3A%2F%2Fruumi.net%2Fauth'
+      let redir = process.env.NODE_ENV !== 'production' ? 'http%3A%2F%2Flocalhost%3A3000%2Fauth' : process.env.REDIRECT_URI
       res.redirect(
         `https://discordapp.com/api/oauth2/authorize?client_id=669322924657737748&redirect_uri=${
           redir
