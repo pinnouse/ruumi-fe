@@ -45,8 +45,8 @@ async function start () {
     cookie: { maxAge: COOKIE_AGE },
     store: new MongoStore({
       url: 'mongodb://' +
-        process.env.MONGO_USER && process.env.MONGO_PASS ? `${process.env.MONGO_USER}:${process.env.MONGO_PASS}@` : "" +
-        process.env.MONGO_URL || 'localhost:27017',
+        (process.env.MONGO_USER && process.env.MONGO_PASS ? `${process.env.MONGO_USER}:${process.env.MONGO_PASS}@` : "") +
+        (process.env.MONGO_URL || 'localhost') + ':' + (process.env.MONGO_PORT || 27017),
       touchAfter: COOKIE_AGE
     }),
     secret: process.env.SESSION_SECRET || 'random_secret_ruumi_should_change',
