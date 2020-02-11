@@ -4,8 +4,7 @@ ADD . /app
 WORKDIR /app
 
 RUN npm ci
-
-ENV HOST 0.0.0.0
+RUN npm run build
 
 EXPOSE 3000
 
