@@ -21,7 +21,7 @@ module.exports = {
   },
   host: process.env.HOST || 'localhost',
   env: {
-    HOST_URL: process.env.HOST_URL || 'http://localhost:3000'
+    hostUrl: process.env.HOST_URL || 'http://localhost:3000'
   },
   /*
   ** Customize the progress-bar color
