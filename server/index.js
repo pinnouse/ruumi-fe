@@ -209,7 +209,6 @@ async function start () {
     ws.on('message', msg => {
       console.log(`got message ${msg} from ${req.session.user.username}`)
       let room = wsMap.get(req.session.user.id).room
-      console.log(room)
       if (!room) return;
       room.users.forEach(u => {
         wsMap.get(u.id).ws.send(msg)

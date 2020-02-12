@@ -190,7 +190,7 @@ export default {
         let _vm = this;
         let ws = undefined;
         function connectWS() {
-            ws = new WebSocket(`ws://localhost:3000/?r=${_vm.$route.params.room}`);
+            ws = new WebSocket(`ws://${process.env.hostUrl}/?r=${_vm.$route.params.room}`);
             _vm.ws = ws;
             ws.onopen = handleWS;
             ws.onerror = ev => {
