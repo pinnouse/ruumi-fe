@@ -24,7 +24,7 @@ const { login, refresh, getUser } = require('./user_auth')
 
 const api = require('./api')
 
-const PATHS = ['user']
+const PATHS = ['user','access']
 
 async function start () {
   // Init Nuxt.js
