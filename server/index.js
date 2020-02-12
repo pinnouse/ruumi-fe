@@ -55,7 +55,7 @@ async function start () {
   }
   if (!config.dev) {
     app.set('trust proxy', 1)
-    sess.cookie.secure = true
+    //sess.cookie.secure = true
   }
 
   const sessionParser = session(sess)
