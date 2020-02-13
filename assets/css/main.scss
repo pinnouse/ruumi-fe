@@ -51,6 +51,7 @@ form {
     }
 
     & > input[type=text] {
+        font-family: 'Montserrat', Roboto, 'Helvetica Neue', Arial, sans-serif;
         outline: none;
         border: none;
         max-width: 60%;
@@ -82,4 +83,8 @@ form {
 
 *:focus {
     outline: none;
+}
+
+::placeholder {
+    font-family: 'Montserrat', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }

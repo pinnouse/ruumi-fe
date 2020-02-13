@@ -105,6 +105,15 @@ async function start () {
     if (req.query && req.query.room) {
       let r = rooms.getRoom(req.query.room)
       if (r) {
+        if (req.session.user)
+          rooms.addUser(r.id, req.session.user)
+        r.users.forEach(u => {
+          if (!wsMap.has(u.id)) return;
+          wsMap.get(u.id).ws.send(JSON.stringify({
+            type: 'connect',
+            user: req.session.user
+          }))
+        })
         res.send(r)
         return
       } else {

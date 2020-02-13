@@ -74,10 +74,10 @@ class Rooms {
     checkRooms() {
         let today = new Date()
         let deleted = 0
-        let r = this;
+        let _r = this;
         this._rooms.forEach((r, k) => {
-            if (today - r.created < 1000 * 60 * 60 * 4) return;
-            r.deleteRoom(k)
+            if (today - r.created < 1000 * 60 * 60 * 6) return;
+            _r.deleteRoom(k)
             deleted++
         })
         return deleted

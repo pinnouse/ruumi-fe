@@ -51,10 +51,10 @@ export default {
             data: data
         })
     },
-    async getRoom({ commit }, roomId) {
+    async getRoom({ commit }, room) {
         let response = await api.get('getRoom', {
             params: {
-                room: roomId
+                room: room
             }
         })
         if (response.status === 200) {

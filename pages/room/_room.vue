@@ -12,15 +12,27 @@
                         @playing="playingHandler"
                         @dblclick.stop="fullscreen"
                         @loadedmetadata="loadDuration"
-                        controls>
+                        @click.prevent
+                        :controls="room.owner.id == user.id">
                         <source :src="room.episode.source" type="video/mp4">
                     </video>
-                    <div class="controls" @click.stop="playPause" @dblclick.stop="fullscreen" ref="controls">
-                        <button class="play" data-icon="P" aria-label="play pause toggle" @click.stop="playPause">{{pauseText}}</button>
-                        <div class="timer" ref="timerWrapper">
-                            <div ref="timerBar"></div>
-                            <span aria-label="timer" ref="timer">{{currentSeek}} / {{durationText}}</span>
+                    <div class="controls" @dblclick.stop="fullscreen" ref="controls">
+                        <button class="play" data-icon="P" aria-label="play pause toggle" @click.stop="playPause">
+                            <img v-if="paused" src="~assets/pl.svg" />
+                            <img v-else src="~assets/pa.svg" />
+                        </button>
+                        <button class="fullscreen" @click.stop="fullscreen" title="Fullscreen"><img src="~assets/fs.svg" /></button>
+                        <div class="timer">
+                            <div class="timer-back"></div>
+                            <div class="timer-bar"
+                                :style="{
+                                    width: (duration > 0 ? current / duration : 0) * 100 + '%'
+                                }"></div>
+                            <div class="timer-seek" :style="{ width: hovSeek * 100 + '%' }"></div>
+                            <div class="slider-padding" @click.stop="seekHandler" @mouseleave="setHoverLeave" @mousemove="setHoverSeek"></div>
+                            <div class="timer-track" :style="{ left: (duration > 0 ? current / duration : 0) * 100 + '%' }"></div>
                         </div>
+                        <span aria-label="timer" ref="timer">{{currentSeek}} / {{durationText}}</span>
                     </div>
                 </div>
                 <h5>{{room.owner.username}}#{{room.owner.discriminator}}'s room {{privateText}}</h5>
@@ -75,8 +87,11 @@ export default {
             paused: true,
             hours: false,
             duration: 0,
+            current: 0,
+            hovSeek: 0,
             currentSeek: "00:00",
             message: "",
+            users: this.$store.state.room.users,
             chat: [],
             ws: {},
         }
@@ -87,12 +102,6 @@ export default {
         },
         user() {
             return this.$store.state.user
-        },
-        users() {
-            return this.$store.state.room.users
-        },
-        pauseText() {
-            return this.paused ? '▶' : '⏸'
         },
         durationText() {
             let s = Math.floor(this.duration) % 60
@@ -133,7 +142,8 @@ export default {
         },
         copyLink() {
             if (navigator.clipboard) {
-                navigator.clipboard.writeText(`https://ruumi.net/room/${this.room.id}`)
+                navigator.clipboard.writeText(`http://${process.env.hostUrl}/room/${this.room.id}`)
+                alert('Copied to clipboard!')
             }
         },
         playPause() {
@@ -157,9 +167,17 @@ export default {
                 if (this.hours) this.currentSeek = `${twoDigit(h)}:${twoDigit(m)}:${twoDigit(s)}`
                 else this.currentSeek = `${twoDigit(m)}:${twoDigit(s)}`
     
-                let barLength = this.$refs.timerWrapper.clientWidth * (media.currentTime/media.duration);
-                this.$refs.timerBar.style.width = barLength + 'px';
+                //let barLength = this.$refs.timerWrapper.clientWidth * (media.currentTime/media.duration);
+                this.current = media.currentTime;
+                //this.$refs.timerBar.style.width = barLength + 'px';
             }
+        },
+        setHoverSeek(e) {
+            let rect = e.target.getBoundingClientRect()
+            this.hovSeek = (e.clientX - rect.x) / rect.width
+        },
+        setHoverLeave() {
+            this.hovSeek = 0
         },
         fullscreen() {
             var elem = this.$refs.video;
@@ -177,8 +195,15 @@ export default {
         },
         sendMessage() {
             if (this.ws && this.message.trim().length > 0) {
-                this.ws.send(JSON.stringify({message: this.message.trim(), user: this.user}))
+                this.ws.send(JSON.stringify({type: 'message', message: this.message.trim(), user: this.user}))
                 this.message = ""
+            }
+        },
+        seekHandler(e) {
+            let rect = e.target.getBoundingClientRect()
+            let seekPercent = (e.clientX - rect.x) / rect.width
+            if (this.$refs.video) {
+                this.$refs.video.currentTime = seekPercent * this.duration
             }
         }
     },
@@ -204,7 +229,15 @@ export default {
                 if (!ev.data) return;
                 let data = JSON.parse(ev.data)
                 console.log(data)
-                _vm.chat.push(data)
+                switch(data.type) {
+                    case 'message':
+                        _vm.chat.push(data);
+                        break;
+                    case 'connect':
+                        if (!_vm.users.includes(data.user))
+                            _vm.users.push(data.user);
+                        break;
+                }
             }
             ws.onclose = () => {
                 console.log('Chat WS closed, reconnecting...');
@@ -231,6 +264,7 @@ export default {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
+    align-items: flex-start;
 
     & > .video-container {
         width: 60%;
@@ -247,6 +281,10 @@ export default {
                 width: 100%;
                 background: #000000;
                 box-shadow: 5px 6px 18px 2px rgba(6, 2, 4, 0.33);
+
+                &::-webkit-media-controls-enclosure {
+                    display: none !important;
+                }
             }
 
             & > .controls {
@@ -264,31 +302,81 @@ export default {
 
                 & > button {
                     position: absolute;
-                    top: calc(50% - 40px);
-                    left: calc(50% - 40px);
+                    bottom: 0;
+                    left: 0;
                     display: flex;
                     flex-direction: row;
                     justify-content: center;
                     align-items: center;
-                    height: 80px;
-                    width: 80px;
-                    border-radius: 50%;
-                    padding: 0;
+                    height: 28px;
+                    width: 28px;
+                    border-radius: 4px;
+                    padding: 4px;
                     margin: 0;
-                    opacity: .6;
-                    transition: opacity 0.33s;
+                    opacity: .68;
 
-                    &:hover {
-                        opacity: .8;
-                        background-color: #df465f;
+                    & > img {
+                        height: 22px;
+                        width: 22px;
                     }
+
+                    &.play {
+                        top: calc(53% - 25px);
+                        left: calc(50% - 25px);
+                        height: 50px;
+                        width: 50px;
+
+                        & > img {
+                            height: 32px;
+                            width: 32px;
+                        }
+                    }
+
+                    &.fullscreen {
+                        left: unset;
+                        right: 10px;
+                        bottom: 6px;
+                    }
+                }
+
+                & >.timer {
+                    width: calc(100% - 20px);
+                    margin: 0 10px;
+                    font-size: 10px;
+                    color: white;
+                    flex: 5;
+                    position: absolute;
+                    left: 0;
+                    bottom: 40px;
+                    height: 8px;
+                    transform: translateY(20px);
+                    opacity: 0;
+                    transition: transform .22s ease-out, opacity .18s ease-out;
+
+                }
+
+                & > span {
+                    font-size: 12px;
+                    font-weight: bold;
+                    position: absolute;
+                    z-index: 3;
+                    left: 8px;
+                    bottom: 10px;
+                    display: flex;
+                    flex-direction: row;
+                    white-space: nowrap;
                 }
             }
 
             &:hover > .controls,
             &:focus > .controls {
                 opacity: 1;
-                transition: opacity .53s;
+                transition: opacity .53s ease-out;
+
+                & > .timer {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
         }
     }
@@ -297,7 +385,6 @@ export default {
         display: flex;
         flex-direction: column;
         width: 30%;
-        min-height: 700px;
         box-shadow: 5px 6px 18px 2px rgba(6, 2, 4, 0.33);
 
         & > .chat-users {
@@ -333,6 +420,9 @@ export default {
             flex: 1;
             background: #000000;
             font-size: 12px;
+            min-height: 800px;
+            max-height: 800px;
+            overflow-y: auto;
 
             & > div {
                 padding: 8px;
@@ -400,37 +490,48 @@ export default {
     }
 }
 
-.timer {
-    line-height: 38px;
-    height: 38px;
-    font-size: 10px;
-    color: white;
-    flex: 5;
+.timer > div {
     position: absolute;
-    bottom: 0;
-}
-
-.timer div {
-    position: absolute;
-    background-color: rgba(255,255,255,0.2);
     left: 0;
-    top: 0;
     width: 0;
-    height: 38px;
+    height: 8px;
     z-index: 2;
+
+    &.timer-back {
+        background-color: rgba(54, 41, 43, 0.452);
+        width: 100%;
+    }
+
+    &.timer-seek {
+        background-color: rgba(32, 25, 27, 0.445);
+    }
+
+    &.timer-bar {
+        background-color: var(--theme-color);
+    }
+
+    &.timer-track {
+        z-index: 5;
+        display: block;
+        position: absolute;
+        margin-top: -4px;
+        margin-left: -8px;
+        top: 0;
+        left: 0;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: var(--secondary-color);
+        border: 3px solid #ffffff;
+    }
+
+    &.slider-padding {
+        width: 100%;
+        padding: 8px 0 6px;
+    }
 }
 
-.timer span {
-    font-size: 12px;
-    font-weight: bold;
-    position: absolute;
-    z-index: 3;
-    left: 19px;
-    bottom: 0;
-    display: flex;
-    flex-direction: row;
-    white-space: nowrap;
-}
+
 
 .copy-link {
     cursor: pointer;
