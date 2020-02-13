@@ -12,13 +12,14 @@
             </div>
             <router-link to="/search">Back</router-link>
             <h4>Currently has {{anime.episodes.length}} episode(s).</h4>
+            <h5 v-if="!user">You must <a href="/login">login</a> to create a room!</h5>
             <div class="episode-list">
                 <div v-for="(e, i) in anime.episodes"
                     :key="anime.title + i"
                     :style="{
                         'animation-delay': `${Math.sqrt(i) * 0.066}s`
                         }">
-                    <router-link :to="`./${anime.id}/${e.epNum}`">Episode {{e.epNum}}</router-link>
+                    <button @click="createRoom(e.epNum)">Episode {{e.epNum}}</button>
                 </div>
             </div>
         </div>
@@ -41,11 +42,36 @@ export default {
                 return this.$store.state.search.find(s => s.id == anim)
             return this.$store.state.anime[anim]
         },
+        user() {
+            return Object.entries(this.$store.state.user).length > 0 ? this.$store.state.user : false
+        },
         alts() {
             return this.anime.altTitles && this.anime.altTitles.length > 0
                 ? this.anime.altTitles.join(', ') : false
         }
     },
+    methods: {
+        async createRoom(epNum) {
+            if (!this.user) {
+                alert("You must be logged in to create a room!")
+                return
+            }
+            
+            try {
+                await this.$store.dispatch('fetchEpisode', { animeId: this.anime.id, epNum: epNum})
+            } catch(e) {
+                console.error(e.response)
+                alert(e)
+                return
+            }
+            try {
+                let r = await this.$store.dispatch('createRoom', {user: this.user, episode: this.anime.episodes.find(e => e.epNum == epNum), anime: this.anime })
+                this.$router.push(`/room/${r.data.roomId}`)
+            } catch(e) {
+                console.error(e);
+            }
+        }
+    }
 }
 </script>
 
@@ -113,6 +139,7 @@ export default {
             width: 220px;
             pointer-events: none;
             border-radius: 4px;
+            box-shadow: 2px 2px 6px 0 rgba(16, 10, 12, 0.199);
         }
     }
 }

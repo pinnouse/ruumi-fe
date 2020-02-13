@@ -97,6 +97,10 @@ async function start () {
   var rooms = new Rooms();
   app.post('/createRoom', (req, res) => {
     let data = req.body.data;
+    if (!data.user || !data.anime || !data.episode) {
+      res.status(403).send('Invalid room format')
+      return
+    }
     let id = rooms.createRoom(data.user, data.anime, data.episode)
     res.send({roomId: id})
   })
@@ -197,13 +201,9 @@ async function start () {
   let wss = new ws.Server({ clientTracking: false, noServer: true })
 
   server.on('upgrade', (req, socket, head) => {
-    console.log('Parsing session from request...')
+    config.dev && console.log('Parsing session from request...')
     sessionParser(req, {}, () => {
-      if (!req.session.user) {
-        socket.destroy()
-        return
-      }
-      console.log('Session is parsed')
+      config.dev && console.log('Session is parsed')
       wss.handleUpgrade(req, socket, head, ws => {
         wss.emit('connection', ws, req)
       })
@@ -213,25 +213,53 @@ async function start () {
   wss.on('connection', (ws, req) => {
     let q = url.parse(req.url, true)
     if (!q.query || !q.query.r) return;
-    wsMap.set(req.session.user.id, {room: rooms.getRoom(q.query.r), ws: ws })
+    let room = rooms.getRoom(q.query.r)
+    if (!room) return;
+    if (!wsMap.has(room.id)) wsMap.set(room.id, [])
+    let connectedWs = wsMap.get(room.id)
+    if (!connectedWs.includes(ws))
+      connectedWs.push(ws)
+    wsMap.set(room.id, connectedWs)
 
     ws.on('message', msg => {
-      console.log(`got message ${msg} from ${req.session.user.username}`)
-      let room = wsMap.get(req.session.user.id).room
-      if (!room) return;
-      room.users.forEach(u => {
-        wsMap.get(u.id).ws.send(msg)
-      })
+      if (!req.session.user || !req.session.user.id) return
+      config.dev && console.log(`got message ${msg} from ${req.session.user.username}`)
+      function sendAllWS(msg) {
+        wsMap.get(room.id).forEach(w => {
+          w.send(msg)
+        })
+      }
+
+      try {
+        let data = JSON.parse(msg)
+        switch (data.type) {
+          case 'play-pause':
+          case 'seek':
+            if (req.session.user.id !== room.owner.id) return
+            sendAllWS(msg)
+            break
+          default:
+            sendAllWS(msg)
+            break
+        }
+      } catch(e) {
+        console.error('Some user is acting up: ', req.session.user)
+      }
     })
 
     ws.on('close', () => {
-      wsMap.delete(req.session.user.id)
+      connectedWs = wsMap.get(room.id)
+      wsMap.set(room.id, connectedWs.filter(w => w != ws))
     })
   })
 
   let job = new CronJob("0 */20 * * * *", () => {
     let del = rooms.checkRooms()
-    console.log(`Checked ${rooms.size()} and removed ${del}`)
+    del.forEach(rId => {
+      if (!wsMap.has(rId)) return
+      wsMap.delete(rId)
+    })
+    console.log(`Checked ${rooms.size()} and removed ${del.length}`)
   })
   job.start()
 

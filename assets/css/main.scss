@@ -71,14 +71,10 @@ form {
 }
 .page-enter {
     opacity: 0;
-    transform-origin: 50% 50%;
-    transform: translateY(20px);
 }
 
 .page-leave-active {
     opacity: 0;
-    transform-origin: 50% 50%;
-    transform: translateY(-20px);
 }
 
 *:focus {

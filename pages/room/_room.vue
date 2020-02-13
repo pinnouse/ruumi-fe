@@ -13,10 +13,10 @@
                         @dblclick.stop="fullscreen"
                         @loadedmetadata="loadDuration"
                         @click.prevent
-                        :controls="room.owner.id == user.id">
+                        :controls="user.id && room.owner.id == user.id">
                         <source :src="room.episode.source" type="video/mp4">
                     </video>
-                    <div class="controls" @dblclick.stop="fullscreen" ref="controls">
+                    <div class="controls" @dblclick.stop="fullscreen" ref="controls" v-if="user.id && room.owner.id == user.id">
                         <button class="play" data-icon="P" aria-label="play pause toggle" @click.stop="playPause">
                             <img v-if="paused" src="~assets/pl.svg" />
                             <img v-else src="~assets/pa.svg" />
@@ -147,12 +147,14 @@ export default {
             }
         },
         playPause() {
-            if (this.$refs.video) {
-                if (this.$refs.video.paused) {
-                    this.$refs.video.play()
-                } else {
-                    this.$refs.video.pause()
-                }
+            if (!this.$refs.video || (this.user.id && this.room.owner.id != this.user.id) || this.ws.readyState !== 1)
+                return
+            if (this.$refs.video.paused) {
+                this.$refs.video.play()
+                this.ws.send(JSON.stringify({type: 'play-pause', value: 'play', current: this.current}))
+            } else {
+                this.$refs.video.pause()
+                this.ws.send(JSON.stringify({type: 'play-pause', value: 'pause', current: this.current}))
             }
         },
         setTime() {
@@ -202,20 +204,23 @@ export default {
         seekHandler(e) {
             let rect = e.target.getBoundingClientRect()
             let seekPercent = (e.clientX - rect.x) / rect.width
-            if (this.$refs.video) {
-                this.$refs.video.currentTime = seekPercent * this.duration
-            }
+            if (this.ws.readyState !== 1) return
+            this.ws.send(JSON.stringify({type: 'seek', value: seekPercent * this.duration}))
+            this.seekTo(seekPercent * this.duration)
+        },
+        seekTo(time) {
+            if (!this.$refs.video) return
+            this.$refs.video.currentTime = time
         }
     },
     mounted() {
         if (this.$refs.video) {
             this.$refs.video.removeAttribute('controls');
-            this.$refs.controls.style.visibility = 'visible';
         }
         let _vm = this;
         let ws = undefined;
         function connectWS() {
-            ws = new WebSocket(`ws://${process.env.hostUrl}/?r=${_vm.$route.params.room}`);
+            ws = new WebSocket(`ws://${process.env.hostUrl}?r=${_vm.$route.params.room}`);
             _vm.ws = ws;
             ws.onopen = handleWS;
             ws.onerror = ev => {
@@ -236,6 +241,14 @@ export default {
                     case 'connect':
                         if (!_vm.users.includes(data.user))
                             _vm.users.push(data.user);
+                        break;
+                    case 'play-pause':
+                        if (data.value == 'play') _vm.$refs.video.play();
+                        else _vm.$refs.video.pause()
+                        _vm.seekTo(data.current)
+                        break;
+                    case 'seek':
+                        _vm.seekTo(data.value)
                         break;
                 }
             }
@@ -289,7 +302,7 @@ export default {
 
             & > .controls {
                 box-sizing: border-box;
-                visibility: hidden;
+                visibility: visible;
                 opacity: 0;
                 width: 100%;
                 height: 100%;

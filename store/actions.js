@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: 'http://' + (process.env.NODE_ENV === 'production' ? process.env.hostUrl : "localhost:3000/"),
+    baseURL: (process.env.hostProtocol || 'http') + '://' +
+        (process.env.NODE_ENV === 'production' ? process.env.hostUrl : "localhost:3000/"),
 })
 
 export default {
