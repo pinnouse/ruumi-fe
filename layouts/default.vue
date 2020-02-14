@@ -1,6 +1,9 @@
 <template>
   <div>
     <nuxt class="container" />
+    <footer>
+      <a href="https://www.patreon.com/pinnouse" target="_blank" rel="noreferrer"><img src="~assets/Patreon_Mark_White.svg" /></a>
+    </footer>
   </div>
 </template>
 
@@ -30,6 +33,23 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+footer {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  width: 100%;
+  height: 18px;
+  text-align: center;
+
+  & > a {
+    height: 100%;
+
+    & > img {
+      height: 100%;
+    }
   }
 }
 </style>

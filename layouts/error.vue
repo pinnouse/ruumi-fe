@@ -1,7 +1,7 @@
 <template>
     <div class="error">
         <h1>{{error.statusCode}}</h1>
-        <nuxt-link to="/">Home Page</nuxt-link>
+        <nuxt-link class="btn" to="/">Home Page</nuxt-link>
         <div>
             <span>{{error.message}}</span>
         </div>

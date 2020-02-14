@@ -7,9 +7,9 @@
                 <span>{{motd}}</span>
             </div>
             <div>
-                <router-link to="search">Search</router-link>
-                <a v-if="!hasUser" href="/login">Login</a>
-                <a v-else href="/logout">Logout</a>
+                <router-link class="btn" to="search">Search</router-link>
+                <a class="btn" v-if="!hasUser" href="/login">Login</a>
+                <a class="btn" v-else href="/logout">Logout</a>
             </div>
         </div>
     </div>

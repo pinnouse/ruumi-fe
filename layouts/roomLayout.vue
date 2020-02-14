@@ -22,7 +22,7 @@ html {
   margin: 32px 10vw;
 
   & > div > .room.container {
-    display: block
+    display: block;
   }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
     <div>
         <h1>SEARCH</h1>
-        <router-link to="/">Home</router-link>
+        <router-link class="btn" to="/">Home</router-link>
         <form class="search" @submit.prevent="newSearch">
             <input type="text" placeholder="Search" v-model="keyword" autofocus>
             <button type="submit">Search</button>
@@ -18,7 +18,7 @@
                             'animation-delay': `${Math.sqrt(i) * 0.066}s`
                             }"
                         class="result">
-                        <router-link :to="`/anime/${a.id}`"
+                        <router-link class="btn" :to="`/anime/${a.id}`"
                             :title="a.title">
                             <img :src="a.poster" />
                             <h3>{{a.title}}</h3>

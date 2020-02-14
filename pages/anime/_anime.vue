@@ -10,7 +10,7 @@
                 <h2>{{anime.title}}</h2>
                 <h5 v-if="alts"><i>{{alts}}</i></h5>
             </div>
-            <router-link to="/search">Back</router-link>
+            <router-link class="btn" to="/search">Back</router-link>
             <h4>Currently has {{anime.episodes.length}} episode(s).</h4>
             <h5 v-if="!user">You must <a href="/login">login</a> to create a room!</h5>
             <div class="episode-list">
