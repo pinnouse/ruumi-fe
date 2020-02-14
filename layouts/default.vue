@@ -37,12 +37,13 @@ body {
 }
 
 footer {
-  position: absolute;
-  bottom: 12px;
+  position: fixed;
+  bottom: 16px;
   left: 0;
   width: 100%;
+  padding: 0 16px;
   height: 18px;
-  text-align: center;
+  text-align: right;
 
   & > a {
     height: 100%;
