@@ -154,20 +154,6 @@ export default {
         margin: 8px;
         opacity: 0;
         animation: fade-in .3s ease-out forwards;
-
-        & > a {
-            display: block;
-            padding: 14px;
-            border-radius: 2px;
-            background-color: #df465f;
-            color: #ffffff;
-            text-decoration: none;
-            transition: .12s;
-
-            &:hover {
-                background-color: #ad3952;
-            }
-        }
     }
 }
 

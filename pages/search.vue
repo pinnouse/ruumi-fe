@@ -2,7 +2,7 @@
     <div>
         <h1>SEARCH</h1>
         <router-link class="btn" to="/">Home</router-link>
-        <form class="search" @submit.prevent="newSearch">
+        <form class="search" @submit.prevent="newSearch" style="margin-bottom: 12px;">
             <input type="text" placeholder="Search" v-model="keyword" autofocus>
             <button type="submit">Search</button>
         </form>
@@ -42,6 +42,8 @@ export default {
     async asyncData({ store, query }) {
         if (query.q) {
             return await store.dispatch("search", { searchTerm: query.q, page: query.p || 1})
+        } else {
+            return await store.dispatch("random")
         }
     },
     computed: {
@@ -99,12 +101,12 @@ export default {
             display: flex;
             flex-direction: column;
             padding: 0;
-            background-color: #df465f;
+            background-color: var(--theme-color);
             color: #ffffff;
             text-decoration: none;
             box-shadow: 3px 4px 8px 5px rgba(24, 24, 24, 0.425);
             max-width: 260px;
-            transition: .12s;
+            transition: all .12s ease-out;
 
             & > img {
                 display: inline-block;
@@ -120,8 +122,8 @@ export default {
             }
 
             &:hover {
-                background-color: #ad3952;
-                transform: translateY(-5px);
+                background-color: var(--secondary-color);
+                transform: translateY(-8px);
 
                 & > img {
                     opacity: .8;
@@ -140,7 +142,7 @@ export default {
 
             & > h2 {
                 font-size: 25px;
-                color: #df465f;
+                color: var(--secondary-color);
                 font-weight: bold;
                 margin-bottom: 4px;
             }
@@ -156,7 +158,7 @@ export default {
 @keyframes fade-in {
     0% {
         opacity: 0;
-        transform: translateY(-30px);
+        transform: translateY(-40px);
     }
     100% {
         opacity: 1;

@@ -18,6 +18,21 @@ export default {
             }
         }
     },
+    async random({ commit }) {
+        try {
+            let response = await api.get('api/random', {
+                params: {
+                    a: 20
+                }
+            })
+            if (response.status === 200) {
+                commit('setSearch', { searchResults: response.data })
+            }
+
+        } catch(e) {
+            console.error(e)
+        }
+    },
     async fetchAnime({ commit, state }, animeId) {
         if (!state.anime[animeId]) {
             let response = await api.get('api/anime', {

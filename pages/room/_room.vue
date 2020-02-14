@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <h5>{{room.owner.username}}#{{room.owner.discriminator}}'s room {{privateText}}</h5>
-                <span>Room link: <u class="copy-link" @click="copyLink" title="Copy room link">https://ruumi.net/room/{{room.id}}</u></span>
+                <span>Room link: <u class="copy-link" @click="copyLink" title="Copy room link">{{baseUrl}}room/{{room.id}}</u></span>
             </div>
             <div class="chat-container">
                 <div class="chat-users">
@@ -103,6 +103,9 @@ export default {
         user() {
             return this.$store.state.user
         },
+        baseUrl() {
+            return process.env.hostProtocol + "://" + process.env.hostUrl
+        },
         durationText() {
             let s = Math.floor(this.duration) % 60
             let m = Math.floor(this.duration / 60)
@@ -142,7 +145,7 @@ export default {
         },
         copyLink() {
             if (navigator.clipboard) {
-                navigator.clipboard.writeText(`http://${process.env.hostUrl}/room/${this.room.id}`)
+                navigator.clipboard.writeText(`${this.baseUrl}room/${this.room.id}`)
                 alert('Copied to clipboard!')
             }
         },

@@ -9,6 +9,7 @@ const api = axios.create({
 
 const PATHS = [
     'search',
+    'random',
     'anime',
     'episode',
 ]
