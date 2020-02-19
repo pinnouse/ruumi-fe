@@ -1,11 +1,18 @@
 <template>
   <div>
     <nuxt class="room container" />
-    <footer>
-      <a href="https://www.patreon.com/pinnouse" target="_blank" rel="noreferrer"><img src="~assets/Patreon_Mark_White.svg" /></a>
-    </footer>
+    <footer-component />
   </div>
 </template>
+
+<script>
+import FooterComponent from '~/components/Footer.vue'
+export default {
+  components: {
+    FooterComponent,
+  }
+}
+</script>
 
 <style lang="scss">
 html {
@@ -26,24 +33,6 @@ html {
 
   & > div > .room.container {
     display: block;
-  }
-}
-
-footer {
-  position: fixed;
-  bottom: 16px;
-  left: 0;
-  width: 100%;
-  padding: 0 16px;
-  height: 18px;
-  text-align: right;
-
-  & > a {
-    height: 100%;
-
-    & > img {
-      height: 100%;
-    }
   }
 }
 </style>

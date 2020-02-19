@@ -12,7 +12,7 @@
             </div>
             <router-link class="btn" to="/search">Back</router-link>
             <h4>Currently has {{anime.episodes.length}} episode(s).</h4>
-            <h5 v-if="!user">You must <a href="/login">login</a> to create a room!</h5>
+            <h5 v-if="!user">You must <a class="btn" href="/login">login</a> to create a room!</h5>
             <div class="episode-list">
                 <div v-for="(e, i) in anime.episodes"
                     :key="anime.title + i"
