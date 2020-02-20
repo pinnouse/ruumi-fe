@@ -223,7 +223,7 @@ export default {
         let _vm = this;
         let ws = undefined;
         function connectWS() {
-            ws = new WebSocket(`ws://${process.env.hostUrl}?r=${_vm.$route.params.room}`);
+            ws = new WebSocket(`${process.env.hostProtocol == 'https' ? 'wss' : 'ws'}://${process.env.hostUrl}?r=${_vm.$route.params.room}`);
             _vm.ws = ws;
             ws.onopen = handleWS;
             ws.onerror = ev => {
