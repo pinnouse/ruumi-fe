@@ -1,7 +1,7 @@
 {
   "name": "ruumi-fe",
   "version": "1.0.0",
-  "description": "Front end for Ruumi",
+  "description": "Stream anime in rooms with friends!",
   "author": "pinnouse",
   "private": true,
   "scripts": {
