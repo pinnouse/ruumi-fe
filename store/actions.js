@@ -18,9 +18,9 @@ export default {
             }
         }
     },
-    async random({ commit }) {
+    async list({ commit }) {
         try {
-            let response = await api.get('api/random', {
+            let response = await api.get('api/list', {
                 params: {
                     a: 20
                 }
@@ -53,7 +53,7 @@ export default {
             }
         })
         if (response.status === 200) {
-            commit('setEpisode', { animeId, epNum, source: response.data.url })
+            commit('setEpisode', { source: response.data.url })
             return response.data
         }
     },

@@ -25,7 +25,7 @@ html {
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
   background-color: var(--background-color);
-  color: #ffffff;
+  color: var(--font-color);
 }
 
 body {

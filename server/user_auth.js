@@ -2,7 +2,7 @@ const axios = require('axios')
 const qs = require('querystring')
 
 const DISC_API = axios.create({
-    baseURL: 'https://discordapp.com/api/v6/',
+    baseURL: 'https://discord.com/api/',
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
     }

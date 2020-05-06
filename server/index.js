@@ -9,7 +9,7 @@ const app = express()
 
 const bodyParser = require('body-parser')
 const session = require('express-session')
-const MongoStore = require('connect-mongo')(session)
+const SQLiteStore = require('connect-sqlite3')(session)
 
 const CronJob = require('cron').CronJob
 
@@ -40,14 +40,12 @@ async function start () {
     await nuxt.ready()
   }
 
-  const COOKIE_AGE = 1000 * 60 * 60 * 24
+  const COOKIE_AGE = 1000 * 60 * 60 * 24 * 365
   let sess = {
     cookie: { maxAge: COOKIE_AGE },
-    store: new MongoStore({
-      url: 'mongodb://' +
-        (process.env.MONGO_USER && process.env.MONGO_PASS ? `${process.env.MONGO_USER}:${process.env.MONGO_PASS}@` : "") +
-        (process.env.MONGO_URL || 'localhost') + ':' + (process.env.MONGO_PORT || 27017),
-      touchAfter: COOKIE_AGE
+    store: new SQLiteStore({
+      db: 'sessions.sqlite3',
+      concurrentDB: true
     }),
     secret: process.env.SESSION_SECRET || 'random_secret_ruumi_should_change',
     resave: false,
@@ -72,12 +70,22 @@ async function start () {
     }
 
     if (req.session.access && !req.session.user) {
-      let user = await getUser(req.session.access.access)
-      if (user.verified) {
-        req.session.user = user
-      } else {
-        res.status(403).send('<!DOCTYPE html><html><body>You must have a verified Discord account to use this service. <a href="/login">Try logging in again</a>.</body></html>')
-        return
+      try {
+        if (!req.session.access.access) {
+          req.session.destroy()
+          res.status(400).send('<!DOCTYPE html><html><body>There was an error. <a href="/login">Try logging in again</a>.</body></html>')
+          return
+        }
+        let user = await getUser(req.session.access.access)
+        if (user.verified) {
+          req.session.user = user
+        } else {
+          res.status(403).send('<!DOCTYPE html><html><body>You must have a verified Discord account to use this service. <a href="/login">Try logging in again</a>.</body></html>')
+          return
+        }
+      } catch(e) {
+        console.error(e)
+
       }
     }
 

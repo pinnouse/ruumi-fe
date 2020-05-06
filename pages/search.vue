@@ -42,8 +42,8 @@ export default {
     async asyncData({ store, query }) {
         if (query.q) {
             return await store.dispatch("search", { searchTerm: query.q, page: query.p || 1})
-        } else {
-            return await store.dispatch("random")
+        } else if (store.state.search.length == 0) {
+            return await store.dispatch("list")
         }
     },
     computed: {
@@ -90,21 +90,23 @@ export default {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
 
     & > .result {
         display: inline-block;
-        margin: 8px;
+        margin: 32px 16px 8px;
         opacity: 0;
         animation: fade-in .3s ease-out forwards;
 
         & > a {
+            position: relative;
             display: flex;
             flex-direction: column;
             padding: 0;
-            background-color: var(--theme-color);
-            color: #ffffff;
+            color: var(--alt-font-color);
             text-decoration: none;
-            box-shadow: 3px 4px 8px 5px rgba(24, 24, 24, 0.425);
+            box-shadow: 2px 4px 3px 5px rgba(24, 24, 24, 0.075);
             max-width: 260px;
             transition: all .12s ease-out;
 
@@ -116,17 +118,31 @@ export default {
             }
 
             & > h3 {
-                font-size: 20px;
+                position: absolute;
+                top: calc(100% - 16px);
+                left: 12px;
+                width: 100%;
+                background-color: var(--theme-color);
+                font-size: 16px;
+                font-weight: normal;
                 margin: 0;
-                padding: 14px 10px;
+                padding: 18px 10px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                box-shadow: 2px 4px 6px 2px rgba(29, 5, 17, 0.103);
             }
 
             &:hover {
                 background-color: var(--secondary-color);
-                transform: translateY(-8px);
+                transform: translateY(-12px);
 
                 & > img {
-                    opacity: .8;
+                    opacity: .87;
+                }
+
+                & > h3 {
+                    background-color: var(--secondary-color);
                 }
             }
         }

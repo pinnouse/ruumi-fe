@@ -14,12 +14,12 @@
             <h4>Currently has {{anime.episodes.length}} episode(s).</h4>
             <h5 v-if="!user">You must <a class="btn" href="/login">login</a> to create a room!</h5>
             <div class="episode-list">
-                <div v-for="(e, i) in anime.episodes"
+                <div v-for="i in anime.episodes"
                     :key="anime.title + i"
                     :style="{
                         'animation-delay': `${Math.sqrt(i) * 0.066}s`
                         }">
-                    <button @click="createRoom(e.epNum)">Episode {{e.epNum}}</button>
+                    <button @click="createRoom(i)">Episode {{i}}</button>
                 </div>
             </div>
         </div>
@@ -65,7 +65,7 @@ export default {
                 return
             }
             try {
-                let r = await this.$store.dispatch('createRoom', {user: this.user, episode: this.anime.episodes.find(e => e.epNum == epNum), anime: this.anime })
+                let r = await this.$store.dispatch('createRoom', {user: this.user, episode: epNum, anime: this.anime })
                 this.$router.push(`/room/${r.data.roomId}`)
             } catch(e) {
                 console.error(e);
@@ -110,9 +110,8 @@ export default {
     margin-top: 40vh;
     flex: 1;
     align-self: stretch;
-    border-radius: 8px;
     padding: 18px;
-    box-shadow: 4px 8px 16px 3px rgba(16, 10, 12, 0.308);
+    box-shadow: 4px 8px 4px 4px rgba(16, 10, 12, 0.062);
 
     & > .anime-title {
         position: relative;
@@ -138,7 +137,6 @@ export default {
             left: 0;
             width: 220px;
             pointer-events: none;
-            border-radius: 4px;
             box-shadow: 2px 2px 6px 0 rgba(16, 10, 12, 0.199);
         }
     }

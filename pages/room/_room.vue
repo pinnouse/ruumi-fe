@@ -14,7 +14,7 @@
                         @loadedmetadata="loadDuration"
                         @click.prevent
                         :controls="user.id && room.owner.id == user.id">
-                        <source :src="room.episode.source" type="video/mp4">
+                        <source :src="source" type="video/mp4">
                     </video>
                     <div class="controls" @dblclick.stop="fullscreen" ref="controls" v-if="user.id && room.owner.id == user.id">
                         <button class="play" data-icon="P" aria-label="play pause toggle" @click.stop="playPause">
@@ -121,6 +121,9 @@ export default {
         },
         privateText() {
             return this.privateRoom ? '🔒' : '🔓'
+        },
+        source() {
+            return this.$store.state.source
         }
     },
     methods: {
@@ -295,7 +298,7 @@ export default {
                 position: relative;
                 display: block;
                 width: 100%;
-                background: #000000;
+                background: var(--theme-color);
                 box-shadow: 5px 6px 18px 2px rgba(6, 2, 4, 0.33);
 
                 &::-webkit-media-controls-enclosure {
@@ -355,7 +358,7 @@ export default {
                     }
                 }
 
-                & >.timer {
+                & > .timer {
                     width: calc(100% - 20px);
                     margin: 0 10px;
                     font-size: 10px;
@@ -363,8 +366,8 @@ export default {
                     flex: 5;
                     position: absolute;
                     left: 0;
-                    bottom: 40px;
-                    height: 8px;
+                    bottom: 10px;
+                    height: 20px;
                     transform: translateY(20px);
                     opacity: 0;
                     transition: transform .22s ease-out, opacity .18s ease-out;
@@ -381,6 +384,7 @@ export default {
                     display: flex;
                     flex-direction: row;
                     white-space: nowrap;
+                    color: white;
                 }
             }
 
