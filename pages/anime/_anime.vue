@@ -56,19 +56,12 @@ export default {
                 alert("You must be logged in to create a room!")
                 return
             }
-            
-            try {
-                await this.$store.dispatch('fetchEpisode', { animeId: this.anime.id, epNum: epNum})
-            } catch(e) {
-                console.error(e.response)
-                alert(e)
-                return
-            }
             try {
                 let r = await this.$store.dispatch('createRoom', {user: this.user, episode: epNum, anime: this.anime })
                 this.$router.push(`/room/${r.data.roomId}`)
             } catch(e) {
                 console.error(e);
+                alert("Failed to create room: " + e)
             }
         }
     }

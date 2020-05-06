@@ -46,6 +46,7 @@ export default {
         }
     },
     async fetchEpisode({ commit }, { animeId, epNum }) {
+        console.log(animeId, epNum)
         let response = await api.get('api/episode', {
             params: {
                 id: animeId,
@@ -57,9 +58,13 @@ export default {
             return response.data
         }
     },
-    async createRoom({}, data) {
+    async createRoom({ dispatch, state }, {user, episode, anime}) {
+        await dispatch('fetchEpisode', {animeId: anime.id, epNum: episode})
         return await api.post('createRoom', {
-            data: data
+            data: {
+                user, episode, anime,
+                source: state.source
+            }
         })
     },
     async delRoom({}, data) {

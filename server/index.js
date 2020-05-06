@@ -105,11 +105,15 @@ async function start () {
   var rooms = new Rooms();
   app.post('/createRoom', (req, res) => {
     let data = req.body.data;
-    if (!data.user || !data.anime || !data.episode) {
+    if (!data.user || !data.anime || !data.episode || !data.source) {
       res.status(403).send('Invalid room format')
       return
     }
-    let id = rooms.createRoom(data.user, data.anime, data.episode)
+    if (!req.session.user || req.session.user.id != data.user.id) {
+      res.status(401).send("<!DOCTYPE html><html><body>It seems you're not logged in. <a href=\"/login\">Try logging in again</a>.</body></html>");
+      return
+    }
+    let id = rooms.createRoom(data.user, data.anime, data.episode, data.source)
     res.send({roomId: id})
   })
 
@@ -242,6 +246,10 @@ async function start () {
         let data = JSON.parse(msg)
         switch (data.type) {
           case 'play-pause':
+            if (req.session.user.id !== room.owner.id) return
+            if (data.value == 'pause') room.lastPause = new Date().getTime()
+            sendAllWS(msg)
+            break
           case 'seek':
             if (req.session.user.id !== room.owner.id) return
             sendAllWS(msg)

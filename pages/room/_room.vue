@@ -4,9 +4,10 @@
         <div class="inner-container">
             <div class="video-container">
                 <h1>{{room.anime.title}}</h1>
-                <h3>Episode {{room.episode.epNum}}</h3>
+                <h3>Episode {{room.episode}}</h3>
                 <div class="player">
                     <video ref="video"
+                        autoplay
                         @timeupdate="setTime"
                         @pause="pauseHandler"
                         @playing="playingHandler"
@@ -14,7 +15,7 @@
                         @loadedmetadata="loadDuration"
                         @click.prevent
                         :controls="user.id && room.owner.id == user.id">
-                        <source :src="source" type="video/mp4">
+                        <source :src="room.source" type="video/mp4">
                     </video>
                     <div class="controls" @dblclick.stop="fullscreen" ref="controls" v-if="user.id && room.owner.id == user.id">
                         <button class="play" data-icon="P" aria-label="play pause toggle" @click.stop="playPause">
@@ -121,9 +122,6 @@ export default {
         },
         privateText() {
             return this.privateRoom ? '🔒' : '🔓'
-        },
-        source() {
-            return this.$store.state.source
         }
     },
     methods: {
@@ -222,6 +220,8 @@ export default {
     mounted() {
         if (this.$refs.video) {
             this.$refs.video.removeAttribute('controls');
+            console.log(new Date().getTime(), this.room, new Date().getTime() - this.room.lastPause)
+            this.seekTo((new Date().getTime() - this.room.lastPause) || 0)
         }
         let _vm = this;
         let ws = undefined;
@@ -291,7 +291,6 @@ export default {
         user-select: none;
 
         & > .player {
-            cursor: pointer;
             position: relative;
         
             & > video {
@@ -366,12 +365,11 @@ export default {
                     flex: 5;
                     position: absolute;
                     left: 0;
-                    bottom: 10px;
+                    bottom: 30px;
                     height: 20px;
                     transform: translateY(20px);
                     opacity: 0;
                     transition: transform .22s ease-out, opacity .18s ease-out;
-
                 }
 
                 & > span {
@@ -438,31 +436,32 @@ export default {
 
         & > .chat-items {
             flex: 1;
-            background: #000000;
-            font-size: 12px;
+            background: var(--background-color);
+            font-size: 14px;
             min-height: 800px;
             max-height: 800px;
             overflow-y: auto;
 
             & > div {
-                padding: 8px;
+                padding: 12px 8px;
 
                 & > strong {
-                    background: #614a4f;
+                    color: #614a4f;
                     padding: 2px;
                     margin-right: 6px;
+                    font-size: 10px;
 
                     &.me {
-                        background: #742536;
+                        color: #742536;
                     }
 
                     &.owner {
-                        background: #df465f !important;
+                        color: #df465f !important;
                     }
                 }
 
                 &:nth-child(2n) {
-                    background: #181614;
+                    background: rgba(75, 5, 25, 0.178);
                 }
             }
         }
@@ -511,10 +510,11 @@ export default {
 }
 
 .timer > div {
+    cursor: pointer;
     position: absolute;
     left: 0;
     width: 0;
-    height: 8px;
+    height: 12px;
     z-index: 2;
 
     &.timer-back {
@@ -531,15 +531,16 @@ export default {
     }
 
     &.timer-track {
+        cursor: default;
         z-index: 5;
         display: block;
         position: absolute;
-        margin-top: -4px;
-        margin-left: -8px;
+        margin-top: -3px;
+        margin-left: -9px;
         top: 0;
         left: 0;
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
         border-radius: 50%;
         background-color: var(--secondary-color);
         border: 3px solid #ffffff;
