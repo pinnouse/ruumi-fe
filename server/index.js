@@ -69,6 +69,15 @@ async function start () {
       return
     }
 
+    if (!req.session.user) {
+      req.session.user = {
+        guest: true,
+        username: 'guest',
+        discriminator: Math.round(Math.random() * 9999).toString().padStart(4, '0'),
+        verified: false,
+      }
+    }
+
     if (req.session.access && !req.session.user) {
       try {
         if (!req.session.access.access) {

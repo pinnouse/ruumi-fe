@@ -92,10 +92,12 @@ export default {
     flex-wrap: wrap;
     justify-content: center;
     width: 100%;
+    padding-bottom: 28px;
+    margin-bottom: 80px;
 
     & > .result {
         display: inline-block;
-        margin: 32px 16px 8px;
+        margin: 38px 16px 20px;
         opacity: 0;
         animation: fade-in .3s ease-out forwards;
 
@@ -112,7 +114,6 @@ export default {
 
             & > img {
                 display: inline-block;
-                border-radius: 4px 4px 0 0;
                 width: 260px;
                 transition: .12s;
             }
@@ -123,6 +124,7 @@ export default {
                 left: 12px;
                 width: 100%;
                 background-color: var(--theme-color);
+                background: var(--theme-color) linear-gradient(-18deg, transparent, #e0607c 80%, #e6617e 100%);
                 font-size: 16px;
                 font-weight: normal;
                 margin: 0;

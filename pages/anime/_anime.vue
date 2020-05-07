@@ -8,18 +8,25 @@
             <div class="anime-title">
                 <img class="poster" :src="anime.poster" />
                 <h2>{{anime.title}}</h2>
-                <h5 v-if="alts"><i>{{alts}}</i></h5>
+                <h5 v-if="alts">{{alts}}</h5>
+                <h5 v-else><i>No alternate titles</i></h5>
             </div>
             <router-link class="btn" to="/search">Back</router-link>
-            <h4>Currently has {{anime.episodes.length}} episode(s).</h4>
+            <h4 v-if="anime.episodes != 1">{{anime.episodes}} episodes.</h4>
             <h5 v-if="!user">You must <a class="btn" href="/login">login</a> to create a room!</h5>
-            <div class="episode-list">
+            <h4>Watch</h4>
+            <div class="episode-list" v-if="anime.episodes != 1">
                 <div v-for="i in anime.episodes"
                     :key="anime.title + i"
                     :style="{
                         'animation-delay': `${Math.sqrt(i) * 0.066}s`
                         }">
                     <button @click="createRoom(i)">Episode {{i}}</button>
+                </div>
+            </div>
+            <div class="episode-list" v-else>
+                <div>
+                    <button @click="createRoom(1)">Watch</button>
                 </div>
             </div>
         </div>
@@ -136,6 +143,7 @@ export default {
 }
 
 .episode-list {
+    width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;

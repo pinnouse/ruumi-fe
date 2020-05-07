@@ -3,12 +3,12 @@
         <div id="home">
             <div class="hero">
                 <h1>Ruumi</h1>
-                <span v-if="hasUser" style="font-size: 10pt;">Hey there, {{user.username}}#{{user.discriminator}}!</span>
+                <span v-if="hasUser || guest" style="font-size: 10pt;">Hey there, {{user.username}}#{{user.discriminator}}!</span>
                 <span>{{motd}}</span>
             </div>
             <div>
                 <router-link class="btn" to="search">Search</router-link>
-                <a class="btn" v-if="!hasUser" href="/login">Login</a>
+                <a class="btn" v-if="!hasUser || !guest" href="/login">Login</a>
                 <a class="btn" v-else href="/logout">Logout</a>
             </div>
         </div>
@@ -20,7 +20,6 @@ const MESSAGES = [
     "Watch anime with friends in ruuuuums. Get it?",
     "Stream anime in rooms!",
     "Cool chatting things so you can talk.",
-    "I don't do anything illegal IDK what you're on about. You're the illegal one.",
     "Yay rooms",
     "ルーミ！！",
     "Made with 💖",
@@ -28,7 +27,10 @@ const MESSAGES = [
 export default {
     computed: {
         hasUser() {
-            return !(Object.entries(this.$store.state.user).length === 0 && this.$store.state.user.constructor === Object)
+            return !Object.entries(this.$store.state.user).length === 0
+        },
+        guest() {
+            return this.$store.state.user.guest
         },
         user() {
             return this.$store.state.user

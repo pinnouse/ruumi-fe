@@ -22,6 +22,7 @@ a.btn, button {
     padding: 14px;
     margin-bottom: 12px;
     background-color: var(--theme-color);
+    background: var(--theme-color) linear-gradient(-18deg, transparent, #e0607c 80%, #e6617e 100%);
     outline: none;
     border: none;
     color: var(--alt-font-color);
@@ -29,6 +30,7 @@ a.btn, button {
     transition: .07s ease;
     flex: 0;
     box-shadow: 1px 2px 5px 2px rgba(36, 16, 128, 0.103);
+    transition: background-color .38s ease, box-shadow .34s ease;
     
     &:hover {
         background-color: var(--secondary-color);
@@ -42,7 +44,7 @@ form {
     justify-content: center;
     width: 100%;
     text-align: center;
-
+    
     & > * {
         box-sizing: border-box;
         padding: 12px;
@@ -50,9 +52,9 @@ form {
         font-size: 18px;
         height: 42px;
         flex: 1;
-        border-radius: 4px;
+        box-shadow: 1px 2px 5px 2px rgba(36, 16, 128, 0.103);
     }
-
+    
     & > input[type=text] {
         font-family: 'Montserrat', Roboto, 'Helvetica Neue', Arial, sans-serif;
         outline: none;
@@ -61,7 +63,7 @@ form {
         background: #2b0319;
         color: #ffffff;
     }
-
+    
     & > button[type=submit] {
         cursor: pointer;
         border: none;
