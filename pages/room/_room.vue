@@ -220,8 +220,8 @@ export default {
     mounted() {
         if (this.$refs.video) {
             this.$refs.video.removeAttribute('controls');
-            console.log(new Date().getTime(), this.room, new Date().getTime() - this.room.lastPause)
-            this.seekTo((new Date().getTime() - this.room.lastPause) || 0)
+            console.log(this.room.seek)
+            this.seekTo((this.room.seek / 1000) || 0)
         }
         let _vm = this;
         let ws = undefined;

@@ -3,12 +3,12 @@
         <div id="home">
             <div class="hero">
                 <h1>Ruumi</h1>
-                <span v-if="hasUser || guest" style="font-size: 10pt;">Hey there, {{user.username}}#{{user.discriminator}}!</span>
+                <span v-if="hasUser" style="font-size: 10pt;">Hey there, {{user.username}}#{{user.discriminator}}!</span>
                 <span>{{motd}}</span>
             </div>
             <div>
                 <router-link class="btn" to="search">Search</router-link>
-                <a class="btn" v-if="!hasUser || !guest" href="/login">Login</a>
+                <a class="btn" v-if="!hasUser || guest" href="/login">Login</a>
                 <a class="btn" v-else href="/logout">Logout</a>
             </div>
         </div>
@@ -27,7 +27,7 @@ const MESSAGES = [
 export default {
     computed: {
         hasUser() {
-            return !Object.entries(this.$store.state.user).length === 0
+            return Object.entries(this.$store.state.user).length !== 0
         },
         guest() {
             return this.$store.state.user.guest

@@ -69,7 +69,7 @@ async function start () {
       return
     }
 
-    if (!req.session.user) {
+    if (!req.session.access && !req.session.user) {
       req.session.user = {
         guest: true,
         username: 'guest',
@@ -78,7 +78,7 @@ async function start () {
       }
     }
 
-    if (req.session.access && !req.session.user) {
+    if (req.session.access && req.session.user.guest) {
       try {
         if (!req.session.access.access) {
           req.session.destroy()
@@ -139,6 +139,7 @@ async function start () {
             user: req.session.user
           }))
         })
+        if (r.state !== 'PAUSED') r.seek = new Date().getTime() - r.lastPause
         res.send(r)
         return
       } else {
@@ -256,7 +257,13 @@ async function start () {
         switch (data.type) {
           case 'play-pause':
             if (req.session.user.id !== room.owner.id) return
-            if (data.value == 'pause') room.lastPause = new Date().getTime()
+            if (data.value == 'pause') {
+              room.seek = new Date().getTime() - room.lastPause
+              room.state = 'PAUSED'
+            } else {
+              room.lastPause = new Date().getTime()
+              room.staet = 'PLAYING'
+            }
             sendAllWS(msg)
             break
           case 'seek':

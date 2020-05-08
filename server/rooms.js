@@ -21,6 +21,7 @@ class Rooms {
             seek: 0,
             users: [user],
             password: password || "",
+            state: 'PAUSED',
             created: new Date(),
             lastPause: new Date().getTime()
         })
