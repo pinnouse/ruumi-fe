@@ -13,22 +13,24 @@
             </div>
             <router-link class="btn" to="/search">Back</router-link>
             <h4 v-if="anime.episodes != 1">{{anime.episodes}} episodes.</h4>
-            <h5 v-if="!user">You must <a class="btn" href="/login">login</a> to create a room!</h5>
-            <h4>Watch</h4>
-            <div class="episode-list" v-if="anime.episodes != 1">
-                <div v-for="i in anime.episodes"
-                    :key="anime.title + i"
-                    :style="{
-                        'animation-delay': `${Math.sqrt(i) * 0.066}s`
-                        }">
-                    <button @click="createRoom(i)">Episode {{i}}</button>
+            <h5 v-if="!user || user.guest">You must <a class="btn" href="/login">login</a> to create a room!</h5>
+            <template v-else>
+                <h4>Watch</h4>
+                <div class="episode-list" v-if="anime.episodes != 1">
+                    <div v-for="i in anime.episodes"
+                        :key="anime.title + i"
+                        :style="{
+                            'animation-delay': `${Math.sqrt(i) * 0.066}s`
+                            }">
+                        <button @click="createRoom(i)">Episode {{i}}</button>
+                    </div>
                 </div>
-            </div>
-            <div class="episode-list" v-else>
-                <div>
-                    <button @click="createRoom(1)">Watch</button>
+                <div class="episode-list" v-else>
+                    <div>
+                        <button @click="createRoom(1)">Watch</button>
+                    </div>
                 </div>
-            </div>
+            </template>
         </div>
     </div>
 </template>

@@ -118,7 +118,7 @@ async function start () {
       res.status(403).send('Invalid room format')
       return
     }
-    if (!req.session.user || req.session.user.id != data.user.id) {
+    if (!req.session.user || req.session.user.guest || req.session.user.id != data.user.id) {
       res.status(401).send("<!DOCTYPE html><html><body>It seems you're not logged in. <a href=\"/login\">Try logging in again</a>.</body></html>");
       return
     }
