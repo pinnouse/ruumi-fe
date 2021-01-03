@@ -9,7 +9,8 @@ const app = express()
 
 const bodyParser = require('body-parser')
 const session = require('express-session')
-const SQLiteStore = require('connect-sqlite3')(session)
+// const SQLiteStore = require('connect-sqlite3')(session)
+const MemoryStore = require('memorystore')(session)
 
 const CronJob = require('cron').CronJob
 
@@ -43,9 +44,8 @@ async function start () {
   const COOKIE_AGE = 1000 * 60 * 60 * 24 * 365
   let sess = {
     cookie: { maxAge: COOKIE_AGE },
-    store: new SQLiteStore({
-      db: 'sessions.sqlite3',
-      concurrentDB: true
+    store: new MemoryStore({
+      checkPeriod: 1000 * 60 * 60 * 4
     }),
     secret: process.env.SESSION_SECRET || 'random_secret_ruumi_should_change',
     resave: false,

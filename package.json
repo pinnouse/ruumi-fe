@@ -13,15 +13,14 @@
   "dependencies": {
     "axios": "^0.19.1",
     "body-parser": "^1.19.0",
-    "connect-mongo": "^3.2.0",
-    "connect-sqlite3": "^0.9.11",
     "cron": "^1.8.2",
     "cross-env": "^6.0.3",
     "dotenv": "^8.2.0",
     "express": "^4.16.4",
     "express-session": "^1.17.0",
+    "memorystore": "^1.6.4",
     "node-sass": "^4.14.1",
-    "nuxt": "^2.0.0",
+    "nuxt": "^2.14.12",
     "remove": "^0.1.5",
     "sass-loader": "^8.0.2",
     "ws": "^7.2.1"
